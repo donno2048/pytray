@@ -1,37 +1,34 @@
-# nothingness
+# pytray
 
-This is nothing, just a template for PyPI packages
+A Python module to interact with the Windows tray.
 
 ## Installation
 
 ### From PyPI
 
 ```sh
-pip3 install nothingness
+pip3 install py-tray
 ```
 
 ### From GitHub
 
 ```sh
-pip3 install git+https://github.com/donno2048/nothingness
+pip3 install git+https://github.com/donno2048/pytray
 ```
 
 ## Usage
 
-### Import fun from \_\_init__.py
+Here is a simple example:
 
 ```py
-from nothingness import fun
+import pytray, time, os
+pytray.create_tray_element()
+pytray.add_icon()
+i = 0
+while True:
+    time.sleep(.1)
+    pytray.set_icon(os.path.abspath(f"cat\\{i}.ico"))
+    i = (i + 1) % 5
 ```
 
-### Run \_\_main__.py
-
-```sh
-python3 -m nothingness
-```
-
-### Run main from \_\_main__.py
-
-```sh
-nothingness
-```
+In the future, I will add more features you can see in main.py.
