@@ -1,6 +1,6 @@
 from setuptools import setup, Extension
 setup(
-    name='tray',
+    name='ptray',
     version='1.0.0',
     license='MIT',
     author='Elisha Hollander',

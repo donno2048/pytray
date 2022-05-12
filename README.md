@@ -7,7 +7,7 @@ A Python module to interact with the Windows tray.
 ### From PyPI
 
 ```sh
-pip3 install tray
+pip3 install ptray
 ```
 
 ### From GitHub
