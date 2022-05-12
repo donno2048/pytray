@@ -1,6 +1,6 @@
 from setuptools import setup, Extension
 setup(
-    name='py-tray',
+    name='tray',
     version='1.0.0',
     license='MIT',
     author='Elisha Hollander',
