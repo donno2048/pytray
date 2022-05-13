@@ -1,7 +1,7 @@
 from setuptools import setup, Extension
 setup(
     name='ptray',
-    version='1.0.0',
+    version='1.1.0',
     license='MIT',
     author='Elisha Hollander',
     author_email='just4now666666@gmail.com',

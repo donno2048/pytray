@@ -23,12 +23,22 @@ Here is a simple example:
 ```py
 import pytray, time, os
 pytray.create_tray_element()
+pytray.create_menu(
+    ("Exit", 1), ("Close", 2)
+)
 pytray.add_icon()
 i = 0
 while True:
-    time.sleep(.1)
+    start_time = time.time()
+    while time.time() - start_time < 0.3:
+        click = pytray.what_is_clicked()
+        if click == 1:
+            exit()
+        elif click == 2:
+            pytray.hide_menu()
+        elif click == None:
+            pass
+        time.sleep(0.1) # make sure only one click is registered
     pytray.set_icon(os.path.abspath(f"cat\\{i}.ico"))
     i = (i + 1) % 5
 ```
-
-In the future, I will add more features you can see in main.py.

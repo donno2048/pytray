@@ -17,20 +17,22 @@ HINSTANCE hInstance = NULL;
 NOTIFYICONDATA nid = {sizeof(nid)};
 #define __prototype(name) static PyObject * name(PyObject * self, PyObject * args)
 #define add_name(func) #func, func
+PyObject * create_menu(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 __prototype(remove_icon);
-__prototype(create_menu);
 __prototype(create_tray_element);
 __prototype(add_icon);
 __prototype(set_icon);
 __prototype(hide_window);
+__prototype(hide_menu);
 __prototype(what_is_clicked);
 static PyMethodDef pytray_methods[] = {
     {add_name(remove_icon), METH_NOARGS, "Remove the tray icon."},
-    {add_name(create_menu), METH_VARARGS, "Create a menu."},
+    {add_name(create_menu), METH_FASTCALL, "Create a menu."},
     {add_name(create_tray_element), METH_NOARGS, "Create a tray element."},
     {add_name(add_icon), METH_NOARGS, "Add the tray icon."},
-    {add_name(set_icon), METH_VARARGS, "Set the tray icon."},
+    {add_name(set_icon), METH_O, "Set the tray icon."},
     {add_name(hide_window), METH_NOARGS, "Hide the window."},
+    {add_name(hide_menu), METH_NOARGS, "Hide the menu."},
     {add_name(what_is_clicked), METH_NOARGS, "What is clicked?"},
     {NULL, NULL, 0, NULL}
 };
@@ -45,23 +47,15 @@ __prototype(remove_icon) {
     Shell_NotifyIcon(NIM_DELETE, &nid);
     Py_RETURN_NONE;
 }
-__prototype(create_menu) { // FIXME: doesn't work, breaks everything
-    const int elements;
-    // const
-    PyObject *items, *ids;
-    if (!PyArg_ParseTuple(args, "iO!O!", &elements, &items, &ids)) return NULL;
-    if (PyList_Size(items) != elements) return NULL;
-    if (PyList_Size(ids) != elements) return NULL;
-    char **items_c = malloc(elements * sizeof(char *));
-    int *ids_c = malloc(elements * sizeof(int));
-    for (int i = 0; i < elements; i++) {
-        if (!PyUnicode_Check(PyList_GetItem(items, i))) return NULL;
-        if (!PyLong_Check(PyList_GetItem(ids, i))) return NULL;
-        items_c[i] = PyBytes_AS_STRING(PyUnicode_AsEncodedString(PyList_GetItem(items, i), "utf-8", "strict"));
-        ids_c[i] = PyLong_AsLong(PyList_GetItem(ids, i));
-    }
+PyObject * create_menu(PyObject *self, PyObject *const *args, Py_ssize_t elements) {
     hMenu = CreatePopupMenu();
-    for (int i = 0; i < elements; i++) AppendMenu(hMenu, 0, ids_c[i], items_c[i]);
+    for (int i = 0; i < elements; i++) {
+        if (!PyTuple_Check(args[i])) return NULL;
+        if (PyTuple_Size(args[i]) != 2) return NULL;
+        if (!PyUnicode_Check(PyTuple_GetItem(args[i], 0))) return NULL;
+        if (!PyLong_Check(PyTuple_GetItem(args[i], 1))) return NULL;
+        AppendMenu(hMenu, MF_STRING, PyLong_AsLong(PyTuple_GetItem(args[i], 1)), PyUnicode_AsUTF8(PyTuple_GetItem(args[i], 0)));
+    }
     Py_RETURN_NONE;
 }
 __prototype(create_tray_element) {
@@ -79,13 +73,18 @@ __prototype(add_icon) {
 }
 __prototype(set_icon) {
     const char *icon;
-    if (!PyArg_ParseTuple(args, "s", &icon)) return NULL;
+    if (!PyUnicode_Check(args)) return NULL;
+    icon = PyUnicode_AsUTF8(args);
     nid.hIcon = LoadImage(NULL, icon, IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
     Shell_NotifyIcon(NIM_MODIFY, &nid);
     Py_RETURN_NONE;
 }
 __prototype(hide_window) {
     ShowWindow(FindWindowA("ConsoleWindowClass", NULL), SW_HIDE);
+    Py_RETURN_NONE;
+}
+__prototype(hide_menu) {
+    RemoveMenu(hMenu, 0, 0);
     Py_RETURN_NONE;
 }
 __prototype(what_is_clicked) {
@@ -96,7 +95,7 @@ __prototype(what_is_clicked) {
         HWND hWnd2 = FindWindowEx(hWnd, NULL, "SysPager", NULL);
         if (WindowFromPoint(p) == (hWnd2 ? FindWindowEx(hWnd2, NULL, "ToolbarWindow32", NULL) : FindWindowEx(hWnd, NULL, "ToolbarWindow32", NULL))) {
             SetForegroundWindow(nid.hWnd);
-            return PyLong_FromLong(TrackPopupMenu(hMenu, TPM_RETURNCMD, p.x, p.y, 0, nid.hWnd, NULL));
+            return PyLong_FromLong(TrackPopupMenu(hMenu, TPM_RETURNCMD, p.x - 32, p.y - 32, 0, nid.hWnd, NULL)); // random offset
         }
     }
     Py_RETURN_NONE;
