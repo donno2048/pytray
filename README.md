@@ -39,6 +39,6 @@ while True:
         elif click == None:
             pass
         time.sleep(0.1) # make sure only one click is registered
-    pytray.set_icon(os.path.abspath(f"cat\\{i}.ico"))
+    pytray.set_icon(os.path.abspath(f"cat\\{i}.ico")) # requires the cat directory from this repo (by Kyome22)
     i = (i + 1) % 5
 ```
