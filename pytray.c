@@ -5,11 +5,6 @@ extern "C" {
 #endif
 #ifdef _WIN32
 #include "Python.h"
-#ifndef Py_PYTHON_H
-#error "Python headers needed to compile C extensions, please install development version of Python."
-#elif PY_VERSION_HEX < 0x02060000 || (0x03000000 <= PY_VERSION_HEX && PY_VERSION_HEX < 0x03030000)
-#error "Cython requires Python 2.6+ or Python 3.3+."
-#endif
 #define _WIN32_WINNT 0x0501
 #include <Windows.h>
 HMENU hMenu = NULL;
