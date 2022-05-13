@@ -7,11 +7,13 @@ extern "C" {
 #include "Python.h"
 #define _WIN32_WINNT 0x0501
 #include <Windows.h>
+#define __prototype(name) static PyObject * name(PyObject * self, PyObject * args)
+#define add_name(func) #func, func
+#define T_Error(msg) {PyErr_SetString(PyExc_TypeError, msg); return NULL;}
 HMENU hMenu = NULL;
 HINSTANCE hInstance = NULL;
 NOTIFYICONDATA nid = {sizeof(nid)};
-#define __prototype(name) static PyObject * name(PyObject * self, PyObject * args)
-#define add_name(func) #func, func
+void __remove_icon_c(void){Shell_NotifyIcon(NIM_DELETE, &nid);}
 PyObject * create_menu(PyObject *self, PyObject *const *args, Py_ssize_t nargs);
 __prototype(remove_icon);
 __prototype(create_tray_element);
@@ -32,25 +34,20 @@ static PyMethodDef pytray_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 static struct PyModuleDef pytray_module = {PyModuleDef_HEAD_INIT, "pytray", NULL, -1, pytray_methods};
-PyMODINIT_FUNC PyInit_pytray(void) {
-    PyObject *m;
-    m = PyModule_Create(&pytray_module);
-    if (m == NULL) return NULL;
-    return m;
-}
-__prototype(remove_icon) {
-    Shell_NotifyIcon(NIM_DELETE, &nid);
-    Py_RETURN_NONE;
-}
+PyMODINIT_FUNC PyInit_pytray(void){return PyModule_Create(&pytray_module);}
 PyObject * create_menu(PyObject *self, PyObject *const *args, Py_ssize_t elements) {
     hMenu = CreatePopupMenu();
     for (int i = 0; i < elements; i++) {
-        if (!PyTuple_Check(args[i])) return NULL;
-        if (PyTuple_Size(args[i]) != 2) return NULL;
-        if (!PyUnicode_Check(PyTuple_GetItem(args[i], 0))) return NULL;
-        if (!PyLong_Check(PyTuple_GetItem(args[i], 1))) return NULL;
+        if (!PyTuple_Check(args[i])) T_Error("Argument must be a tuple.");
+        if (PyTuple_Size(args[i]) != 2) T_Error("Tuple must have 2 elements.");
+        if (!PyUnicode_Check(PyTuple_GetItem(args[i], 0))) T_Error("First element must be a string.");
+        if (!PyLong_Check(PyTuple_GetItem(args[i], 1))) T_Error("Second element must be an integer.");
         AppendMenu(hMenu, MF_STRING, PyLong_AsLong(PyTuple_GetItem(args[i], 1)), PyUnicode_AsUTF8(PyTuple_GetItem(args[i], 0)));
     }
+    Py_RETURN_NONE;
+}
+__prototype(remove_icon) {
+    Shell_NotifyIcon(NIM_DELETE, &nid);
     Py_RETURN_NONE;
 }
 __prototype(create_tray_element) {
@@ -59,7 +56,6 @@ __prototype(create_tray_element) {
     nid.hWnd = CreateWindowEx(0, "STATIC", "", WS_POPUP, 0, 0, 0, 0, 0, hMenu, 0, 0);
     Py_RETURN_NONE;
 }
-void __remove_icon_c(void){Shell_NotifyIcon(NIM_DELETE, &nid);}
 __prototype(add_icon) {
     hInstance = GetModuleHandle(NULL);
     Shell_NotifyIcon(NIM_ADD, &nid);
@@ -68,7 +64,7 @@ __prototype(add_icon) {
 }
 __prototype(set_icon) {
     const char *icon;
-    if (!PyUnicode_Check(args)) return NULL;
+    if (!PyUnicode_Check(args)) T_Error("Argument must be a string.");
     icon = PyUnicode_AsUTF8(args);
     nid.hIcon = LoadImage(NULL, icon, IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
     Shell_NotifyIcon(NIM_MODIFY, &nid);
