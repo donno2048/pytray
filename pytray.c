@@ -66,6 +66,11 @@ __prototype(set_icon) {
     const char *icon;
     if (!PyUnicode_Check(args)) T_Error("Argument must be a string.");
     icon = PyUnicode_AsUTF8(args);
+    if (GetFileAttributes(icon) == INVALID_FILE_ATTRIBUTES) {
+        PyErr_SetString(PyExc_FileNotFoundError, "File not found.");
+        return NULL;
+    }
+    if (GetFileAttributes(icon) & FILE_ATTRIBUTE_DIRECTORY) T_Error("File is a directory.");
     nid.hIcon = LoadImage(NULL, icon, IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
     Shell_NotifyIcon(NIM_MODIFY, &nid);
     Py_RETURN_NONE;
