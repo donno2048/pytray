@@ -23,5 +23,6 @@ setup(
         "Programming Language :: Python :: 3"
     ],
     zip_safe = False,
-    platforms='win32'
+    platforms='win32',
+    include_package_data=True
 )
