@@ -1,1 +1,1 @@
-include pytray.c
+include pytray/pytray.c
