@@ -2,7 +2,7 @@ from setuptools import setup, Extension
 from os import name
 setup(
     name='ptray',
-    version='1.2.1',
+    version='1.2.2',
     license='MIT',
     author='Elisha Hollander',
     author_email='just4now666666@gmail.com',
@@ -15,7 +15,7 @@ setup(
         'Bug Reports': 'https://github.com/donno2048/pytray/issues',
         'Source Code': 'https://github.com/donno2048/pytray'
     },
-    ext_modules=[Extension('pytray', ['pytray.c'], libraries = ["user32", "shell32"])] if name == 'nt' else None,
+    ext_modules=[Extension('pytray', ['pytray\\pytray.c'], libraries = ["user32", "shell32"])] if name == 'nt' else None,
     classifiers=[
         "Environment :: Win32 (MS Windows)",
         "Intended Audience :: Developers",
