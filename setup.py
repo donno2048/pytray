@@ -24,5 +24,6 @@ setup(
     ],
     zip_safe = False,
     platforms='win32',
-    include_package_data=True
+    include_package_data=True,
+    py_modules=[]
 )
