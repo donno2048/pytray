@@ -3,6 +3,10 @@
 A Python module to interact with the Windows tray.
 
 ## Installation
+> [!WARNING]
+> The package will be installed on non-Windows platforms with no errors.
+> 
+> This is for automation purposes only, as the package will only work on Windows.
 
 ### From PyPI
 
@@ -11,7 +15,6 @@ pip3 install ptray
 ```
 
 ### From GitHub
-
 ```sh
 pip3 install git+https://github.com/donno2048/pytray
 ```
