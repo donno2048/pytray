@@ -2,7 +2,7 @@ from setuptools import setup, Extension
 from os import name
 setup(
     name='ptray',
-    version='1.1.2',
+    version='1.2.0',
     license='MIT',
     author='Elisha Hollander',
     author_email='just4now666666@gmail.com',
