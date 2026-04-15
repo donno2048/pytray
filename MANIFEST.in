@@ -1,1 +1,2 @@
 include pytray/pytray.c
+exclude cat/
